@@ -491,43 +491,36 @@ font-size:16px;
 </style>
 <script src="https://iselang.github.io/num.js"></script>
 <script>
-  
+
 load("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css")
 load('num/ux.js');load('num/ui.css');
 app("BIBIT");
-fav(18)
+fav(18);
+
 bibit=ndm=>{
-  let bok=[
-    {1:"Genesis"},{2:"Exodus"},{3:"Leviticus"},{4:"Numbers"},{5:"Deuteronomy"},
-    {6:"Joshua"},{7:"Judges"},{8:"Ruth"},{9:"1Samuel"},{10:"2Samuel"},
-    {11:"1Kings"},{12:"2Kings"},{13:"1Chronicles"},{14:"2Chronicles"},{15:"Ezra"},
-    {16:"Nehemiah"},{17:"Esther"},{18:"Job"},{19:"Psalms"},{20:"Proverbs"},
-    {21:"Ecclesiastes"},{22:"Song of Solomon"},{23:"Isaiah"},{24:"Jeremiah"},{25:"Lamentations"},
-    {26:"Ezekiel"},{27:"Daniel"},{28:"Hosea"},{29:"Joel"},{30:"Amos"},
-    {31:"Obadiah"},{32:"Jonah"},{33:"Micah"},{34:"Nahum"},{35:"Habakkuk"},
-    {36:"Zephaniah"},{37:"Haggai"},{38:"Zechariah"},{39:"Malachi"},{40:"Matthew"},
-    {41:"Mark"},{42:"Luke"},{43:"John"},{44:"Acts"},{45:"Romans"},
-    {46:"1Corinthians"},{47:"2Corinthians"},{48:"Galatians"},{49:"Ephesians"},{50:"Philippians"},
-    {51:"Colossians"},{52:"1Thessalonians"},{53:"2Thessalonians"},{54:"1Timothy"},{55:"2Timothy"},
-    {56:"Titus"},{57:"Philemon"},{58:"Hebrews"},{59:"James"},{60:"1Peter"},
-    {61:"2Peter"},{62:"1John"},{63:"2John"},{64:"3John"},{65:"Jude"},{66:"Revelation"}
-  ];
-  (ndm>=1&&ndm<=66)?
-  (
-    bok=bok[ndm-1][ndm],
-url=`https://chatgpt.com/?model=auto&q=I will ask truthfully, Data must be given raw. I need a summary of ESV you will give me
-events summary of book i say. Give me
-a list. Teller - Writer - Characters
-Events (Tell me based on event close
-to how its written, also put what
-Chapter it came.) 
-(Sub events in chronographical order) 
-   
-    Book: ${bok}`,
-    window.open(encodeURI(url));
-    
-  )
-  :
-  console.log("Invalid input. Use 1-66");
-}
-  </script>
+let bok=[
+{1:"Genesis"},{2:"Exodus"},{3:"Leviticus"},{4:"Numbers"},{5:"Deuteronomy"},
+{6:"Joshua"},{7:"Judges"},{8:"Ruth"},{9:"1Samuel"},{10:"2Samuel"},
+{11:"1Kings"},{12:"2Kings"},{13:"1Chronicles"},{14:"2Chronicles"},{15:"Ezra"},
+{16:"Nehemiah"},{17:"Esther"},{18:"Job"},{19:"Psalms"},{20:"Proverbs"},
+{21:"Ecclesiastes"},{22:"Song of Solomon"},{23:"Isaiah"},{24:"Jeremiah"},{25:"Lamentations"},
+{26:"Ezekiel"},{27:"Daniel"},{28:"Hosea"},{29:"Joel"},{30:"Amos"},
+{31:"Obadiah"},{32:"Jonah"},{33:"Micah"},{34:"Nahum"},{35:"Habakkuk"},
+{36:"Zephaniah"},{37:"Haggai"},{38:"Zechariah"},{39:"Malachi"},{40:"Matthew"},
+{41:"Mark"},{42:"Luke"},{43:"John"},{44:"Acts"},{45:"Romans"},
+{46:"1Corinthians"},{47:"2Corinthians"},{48:"Galatians"},{49:"Ephesians"},{50:"Philippians"},
+{51:"Colossians"},{52:"1Thessalonians"},{53:"2Thessalonians"},{54:"1Timothy"},{55:"2Timothy"},
+{56:"Titus"},{57:"Philemon"},{58:"Hebrews"},{59:"James"},{60:"1Peter"},
+{61:"2Peter"},{62:"1John"},{63:"2John"},{64:"3John"},{65:"Jude"},{66:"Revelation"}
+];
+(ndm>=1&&ndm<=66)?
+(
+bok=bok[ndm-1][ndm],
+let url = `https://chatgpt.com/?model=auto&q=${bok}(ESV) - Raw Data, Give cite too and data of Teller, Writer, Characters, Chronological Events with chapters.`;
+window.open(encodeURI(url));
+
+)
+:
+console.log("Invalid input. Use 1-66");
+};
+</script>
