@@ -1,162 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ESV Bible Reader</title>
-  <style>
-    :root {
-      --bg-color: #000;
-      --text-color: #f2faf2;
-      --accent-bg: #111;
-      --border-color: #333;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 100%;
-      padding: 1rem;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    select {
-      width: 100%;
-      padding: 0.6rem;
-      background-color: var(--accent-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      margin: 1rem 0 0.5rem;
-      color: var(--text-color);
-    }
-
-    h2 {
-      font-size: 1.2rem;
-      margin: 1.5rem 0 0.75rem;
-      color: var(--text-color);
-    }
-
-    .verse {
-      margin-bottom: 0.75rem;
-    }
-
-    .word {
-      margin-right: 0.2rem;
-      display: inline-block;
-    }
-
-    .strong {
-      display: none;
-    }
-
-    @media (min-width: 600px) {
-      .container {
-        max-width: 700px;
-        margin: auto;
-      }
-
-      select {
-        width: auto;
-        margin: 0 0.5rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESV Bible Reader</title>
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg-color:#000;--text-color:#f2faf2;--accent-bg:#111;--border-color:#333;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:var(--bg-color);color:var(--text-color);line-height:1.6;}
+.container{max-width:100%;padding:1rem;}
+header{text-align:center;margin-bottom:1.5rem;}
+select{width:100%;padding:0.6rem;background-color:var(--accent-bg);color:var(--text-color);border:1px solid var(--border-color);border-radius:4px;font-size:1rem;margin-bottom:1rem;}
+h1{font-size:1.5rem;margin:1rem 0 0.5rem;color:var(--text-color);}
+h2{font-size:1.2rem;margin:1.5rem 0 0.75rem;color:var(--text-color);}
+.verse{margin-bottom:0.75rem;}
+.word{margin-right:0.2rem;display:inline-block;}
+.strong{display:none;}
+@media (min-width:600px){.container{max-width:700px;margin:auto;}select{width:auto;margin:0 0.5rem;}}
+button{padding:1em 2em;font-size:1rem;background:#3367D6;color:white;border:none;border-radius:6px;margin-top:1em;cursor:pointer;}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>ESV Bible Reader</h1>
-      <select id="book-select"></select>
-    </header>
-    <main id="verses">Loading...</main>
-  </div>
-
-  <script>
-    const bookSelect = document.getElementById('book-select');
-    const versesDiv = document.getElementById('verses');
-    let bibleData = {};
-
-    async function loadBible() {
-      try {
-        const res = await fetch('https://actwu.github.io/api/ESV.json');
-        const data = await res.json();
-        bibleData = data.books;
-        populateBooks();
-      } catch (err) {
-        versesDiv.textContent = "Failed to load Bible JSON.";
-        console.error(err);
-      }
-    }
-
-    function populateBooks() {
-      bookSelect.innerHTML = '';
-      const books = Object.keys(bibleData);
-      books.forEach(book => {
-        const option = document.createElement('option');
-        option.value = book;
-        option.textContent = book;
-        bookSelect.appendChild(option);
-      });
-      displayAllChapters();
-    }
-
-    function displayAllChapters() {
-      const book = bookSelect.value;
-      const chapters = bibleData[book];
-
-      versesDiv.innerHTML = `<h1>${book}</h1>`;
-
-      chapters.forEach((chapter, chapterIndex) => {
-        const chapterTitle = document.createElement('h2');
-        chapterTitle.textContent = `Chapter ${chapterIndex + 1}`;
-        versesDiv.appendChild(chapterTitle);
-
-        chapter.forEach((verse, verseIndex) => {
-          const verseEl = document.createElement('div');
-          verseEl.classList.add('verse');
-          const verseNum = document.createElement('strong');
-          verseNum.textContent = `${verseIndex + 1} `;
-          verseEl.appendChild(verseNum);
-
-          verse.forEach(word => {
-            const wordEl = document.createElement('span');
-            wordEl.className = 'word';
-            wordEl.textContent = word[0] || '';
-
-            if (word[1]) {
-              const strongEl = document.createElement('span');
-              strongEl.className = 'strong';
-              strongEl.textContent = ` (${word[1]})`;
-              wordEl.appendChild(strongEl);
-            }
-
-            verseEl.appendChild(wordEl);
-          });
-
-          versesDiv.appendChild(verseEl);
-        });
-      });
-    }
-
-    bookSelect.addEventListener('change', displayAllChapters);
-    loadBible();
-  </script>
+<div class="container">
+<header>
+<h1>ESV Bible Reader</h1>
+<select id="book-select"></select>
+</header>
+<main id="verses">Loading...</main>
+</div>
+<script>
+const bookSelect=document.getElementById('book-select');const versesDiv=document.getElementById('verses');let bibleData={};
+async function loadBible(){try{const res=await fetch('https://actwu.github.io/api/ESV.json');const data=await res.json();bibleData=data.books;populateBooks();}catch(err){versesDiv.textContent="Failed to load Bible JSON.";console.error(err);}}
+function populateBooks(){bookSelect.innerHTML='';const books=Object.keys(bibleData);books.forEach(book=>{const option=document.createElement('option');option.value=book;option.textContent=book;bookSelect.appendChild(option);});displayAllChapters();}
+function displayAllChapters(){const book=bookSelect.value;const chapters=bibleData[book];versesDiv.innerHTML=`<h1>${book}</h1>`;chapters.forEach((chapter,chapterIndex)=>{const chapterTitle=document.createElement('h2');chapterTitle.textContent=`Chapter ${chapterIndex+1}`;versesDiv.appendChild(chapterTitle);chapter.forEach((verse,verseIndex)=>{const verseEl=document.createElement('div');verseEl.classList.add('verse');const verseNum=document.createElement('strong');verseNum.textContent=`${verseIndex+1} `;verseEl.appendChild(verseNum);verse.forEach(word=>{const wordEl=document.createElement('span');wordEl.className='word';wordEl.textContent=word[0]||'';if(word[1]){const strongEl=document.createElement('span');strongEl.className='strong';strongEl.textContent=` (${word[1]})`;wordEl.appendChild(strongEl);}verseEl.appendChild(wordEl);});versesDiv.appendChild(verseEl);});});}
+bookSelect.addEventListener('change',displayAllChapters);loadBible();
+let deferredPrompt;const body=document.body;const openApp=()=>{window.location.href='/';};const handleInstall=()=>{if(window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone){openApp();return;}if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;}};const installEl=document.createElement('div');const mainEl=document.createElement('div');const actionBtn=document.createElement('button');const title=document.createElement('h1');actionBtn.textContent='Install';title.textContent='Install This App';installEl.appendChild(title);installEl.appendChild(actionBtn);body.appendChild(installEl);const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;const isInstalled=localStorage.getItem('pwaInstalled')==='true';actionBtn.addEventListener('click',handleInstall);window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;installEl.style.display='block';});window.addEventListener('appinstalled',()=>{localStorage.setItem('pwaInstalled','true');actionBtn.textContent='Open';title.textContent='Open the App';});if(isStandalone){installEl.style.display='none';mainEl.style.display='block';const mainTitle=document.createElement('h1');const mainMessage=document.createElement('p');mainTitle.textContent="You’re Inside the App";mainMessage.textContent="This is the standalone mode.";mainEl.appendChild(mainTitle);mainEl.appendChild(mainMessage);body.appendChild(mainEl);}else{installEl.style.display='block';if(isInstalled){actionBtn.textContent='Open';title.textContent='Open the App';}}
+</script>
 </body>
 </html>
