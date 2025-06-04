@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ESV Bible Reader</title>
+  <title>Bible Reader</title>
   <style>
     :root {
       --bg-color: #000;
       --text-color: #f2faf2;
       --accent-bg: #111;
       --border-color: #333;
+      --hover-color: #1e1e1e;
     }
 
     body {
@@ -27,7 +28,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     select {
@@ -41,10 +42,24 @@
       margin-bottom: 1rem;
     }
 
-    h1 {
-      font-size: 1.5rem;
-      margin: 1rem 0 0.5rem;
+    .book-nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .book-nav-buttons button {
+      background-color: var(--accent-bg);
+      border: 1px solid var(--border-color);
       color: var(--text-color);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .book-nav-buttons button:hover {
+      background-color: var(--hover-color);
     }
 
     h2 {
@@ -66,6 +81,23 @@
       display: none;
     }
 
+    .nav-links {
+      margin-bottom: 1rem;
+    }
+
+    .nav-links a {
+      color: white;
+      font-style: italic;
+      text-decoration: none;
+      margin-right: 1rem;
+      cursor: pointer;
+    }
+
+    .nav-links span {
+      font-style: italic;
+      color: white;
+    }
+
     @media (min-width: 600px) {
       .container {
         max-width: 700px;
@@ -82,8 +114,11 @@
 <body>
   <div class="container">
     <header>
-      <h1>ESV Bible Reader</h1>
       <select id="book-select"></select>
+      <div class="book-nav-buttons">
+        <button id="prev-book">← Previous Book</button>
+        <button id="next-book">Next Book →</button>
+      </div>
     </header>
     <main id="verses">Loading...</main>
   </div>
@@ -91,7 +126,12 @@
   <script>
     const bookSelect = document.getElementById('book-select');
     const versesDiv = document.getElementById('verses');
+    const prevBookBtn = document.getElementById('prev-book');
+    const nextBookBtn = document.getElementById('next-book');
+
     let bibleData = {};
+    let currentBook = '';
+    let currentChapter = 0;
 
     async function loadBible() {
       try {
@@ -114,48 +154,119 @@
         option.textContent = book;
         bookSelect.appendChild(option);
       });
-      displayAllChapters();
+      displayChapter(books[0], 0);
     }
 
-    function displayAllChapters() {
-      const book = bookSelect.value;
+    function displayChapter(book, chapterIndex) {
+      currentBook = book;
+      currentChapter = chapterIndex;
       const chapters = bibleData[book];
+      const totalChapters = chapters.length;
 
-      versesDiv.innerHTML = `<h1>${book}</h1>`;
+      versesDiv.innerHTML = '';
 
-      chapters.forEach((chapter, chapterIndex) => {
-        const chapterTitle = document.createElement('h2');
-        chapterTitle.textContent = `Chapter ${chapterIndex + 1}`;
-        versesDiv.appendChild(chapterTitle);
+      const navDiv = document.createElement('div');
+      navDiv.className = 'nav-links';
 
-        chapter.forEach((verse, verseIndex) => {
-          const verseEl = document.createElement('div');
-          verseEl.classList.add('verse');
-          const verseNum = document.createElement('strong');
-          verseNum.textContent = `${verseIndex + 1} `;
-          verseEl.appendChild(verseNum);
+      const books = Object.keys(bibleData);
+      const bookIndex = books.indexOf(book);
 
-          verse.forEach(word => {
-            const wordEl = document.createElement('span');
-            wordEl.className = 'word';
-            wordEl.textContent = word[0] || '';
+      if (!(book === 'Genesis' && chapterIndex === 0)) {
+        if (chapterIndex > 0) {
+          const backChapter = document.createElement('a');
+          backChapter.textContent = '← Back to Chapter';
+          backChapter.onclick = () => displayChapter(book, chapterIndex - 1);
+          navDiv.appendChild(backChapter);
+        } else if (bookIndex > 0) {
+          const backBook = document.createElement('a');
+          backBook.textContent = '← Back to Book';
+          backBook.onclick = () => {
+            const prevBook = books[bookIndex - 1];
+            const prevChapters = bibleData[prevBook];
+            displayChapter(prevBook, prevChapters.length - 1);
+            bookSelect.value = prevBook;
+          };
+          navDiv.appendChild(backBook);
+        }
+      }
 
-            if (word[1]) {
-              const strongEl = document.createElement('span');
-              strongEl.className = 'strong';
-              strongEl.textContent = ` (${word[1]})`;
-              wordEl.appendChild(strongEl);
-            }
+      if (!(book === 'Revelation' && chapterIndex === totalChapters - 1)) {
+        if (chapterIndex < totalChapters - 1) {
+          const nextChapter = document.createElement('a');
+          nextChapter.textContent = 'Next Chapter →';
+          nextChapter.onclick = () => displayChapter(book, chapterIndex + 1);
+          navDiv.appendChild(nextChapter);
+        } else if (bookIndex < books.length - 1) {
+          const nextBook = document.createElement('a');
+          nextBook.textContent = 'Next Book →';
+          nextBook.onclick = () => {
+            const newBook = books[bookIndex + 1];
+            bookSelect.value = newBook;
+            displayChapter(newBook, 0);
+          };
+          navDiv.appendChild(nextBook);
+        }
+      } else {
+        const finalText = document.createElement('span');
+        finalText.textContent = 'It is written, No more books';
+        navDiv.appendChild(finalText);
+      }
 
-            verseEl.appendChild(wordEl);
-          });
+      versesDiv.appendChild(navDiv);
 
-          versesDiv.appendChild(verseEl);
+      const chapterTitle = document.createElement('h2');
+      chapterTitle.textContent = `Chapter ${chapterIndex + 1}`;
+      versesDiv.appendChild(chapterTitle);
+
+      chapters[chapterIndex].forEach((verse, verseIndex) => {
+        const verseEl = document.createElement('div');
+        verseEl.classList.add('verse');
+        const verseNum = document.createElement('strong');
+        verseNum.textContent = `${verseIndex + 1} `;
+        verseEl.appendChild(verseNum);
+
+        verse.forEach(word => {
+          const wordEl = document.createElement('span');
+          wordEl.className = 'word';
+          wordEl.textContent = word[0] || '';
+          if (word[1]) {
+            const strongEl = document.createElement('span');
+            strongEl.className = 'strong';
+            strongEl.textContent = ` (${word[1]})`;
+            wordEl.appendChild(strongEl);
+          }
+          verseEl.appendChild(wordEl);
         });
+
+        versesDiv.appendChild(verseEl);
       });
     }
 
-    bookSelect.addEventListener('change', displayAllChapters);
+    bookSelect.addEventListener('change', () => {
+      const selectedBook = bookSelect.value;
+      displayChapter(selectedBook, 0);
+    });
+
+    prevBookBtn.addEventListener('click', () => {
+      const books = Object.keys(bibleData);
+      const index = books.indexOf(currentBook);
+      if (index > 0) {
+        const prevBook = books[index - 1];
+        bookSelect.value = prevBook;
+        displayChapter(prevBook, 0);
+      }
+    });
+
+    nextBookBtn.addEventListener('click', () => {
+      const books = Object.keys(bibleData);
+      const index = books.indexOf(currentBook);
+      if (index < books.length - 1) {
+        const nextBook = books[index + 1];
+        bookSelect.value = nextBook;
+        displayChapter(nextBook, 0);
+      }
+    });
+
     loadBible();
   </script>
 </body>
