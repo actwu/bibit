@@ -11,6 +11,7 @@
       --accent-bg: #111;
       --border-color: #333;
       --hover-color: #1e1e1e;
+      --button-size: 32px;
     }
 
     body {
@@ -29,6 +30,7 @@
     header {
       text-align: center;
       margin-bottom: 1rem;
+      position: relative;
     }
 
     select {
@@ -47,6 +49,7 @@
       justify-content: center;
       gap: 1rem;
       margin-bottom: 1rem;
+      flex-wrap: wrap;
     }
 
     .book-nav-buttons button {
@@ -56,9 +59,48 @@
       padding: 0.5rem 1rem;
       border-radius: 4px;
       cursor: pointer;
+      user-select: none;
     }
 
     .book-nav-buttons button:hover {
+      background-color: var(--hover-color);
+    }
+
+    /* Square toggle button for chapters menu */
+    #toggle-chapters-btn {
+      width: var(--button-size);
+      height: var(--button-size);
+      font-weight: bold;
+      font-size: 1.3rem;
+      line-height: var(--button-size);
+      text-align: center;
+      padding: 0;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    /* Chapter menu container */
+    #chapter-menu {
+      display: none;
+      max-width: 700px;
+      margin: 0 auto 1rem;
+      text-align: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    #chapter-menu button {
+      background-color: var(--accent-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      min-width: 32px;
+      user-select: none;
+    }
+
+    #chapter-menu button:hover {
       background-color: var(--hover-color);
     }
 
@@ -117,9 +159,14 @@
       <select id="book-select"></select>
       <div class="book-nav-buttons">
         <button id="prev-book">← Previous Book</button>
+        <button id="toggle-chapters-btn" title="Toggle Chapters">▢</button>
         <button id="next-book">Next Book →</button>
       </div>
     </header>
+
+    <!-- Chapter numbers menu -->
+    <div id="chapter-menu" class="book-nav-buttons"></div>
+
     <main id="verses">Loading...</main>
   </div>
 
@@ -128,6 +175,8 @@
     const versesDiv = document.getElementById('verses');
     const prevBookBtn = document.getElementById('prev-book');
     const nextBookBtn = document.getElementById('next-book');
+    const toggleChaptersBtn = document.getElementById('toggle-chapters-btn');
+    const chapterMenu = document.getElementById('chapter-menu');
 
     let bibleData = {};
     let currentBook = '';
@@ -157,9 +206,30 @@
       displayChapter(books[0], 0);
     }
 
+    function buildChapterMenu(book) {
+      chapterMenu.innerHTML = '';
+      const chapters = bibleData[book];
+      if (!chapters) return;
+      chapters.forEach((_, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = idx + 1;
+        btn.title = `Chapter ${idx + 1}`;
+        if (idx === currentChapter) btn.style.fontWeight = 'bold';
+        btn.onclick = () => {
+          displayChapter(book, idx);
+          // Close menu after selecting chapter
+          chapterMenu.style.display = 'none';
+        };
+        chapterMenu.appendChild(btn);
+      });
+    }
+
     function displayChapter(book, chapterIndex) {
       currentBook = book;
       currentChapter = chapterIndex;
+      bookSelect.value = book;
+      buildChapterMenu(book);
+
       const chapters = bibleData[book];
       const totalChapters = chapters.length;
 
@@ -245,28 +315,36 @@
     bookSelect.addEventListener('change', () => {
       const selectedBook = bookSelect.value;
       displayChapter(selectedBook, 0);
+      chapterMenu.style.display = 'none'; // Hide chapter menu on book change
     });
 
     prevBookBtn.addEventListener('click', () => {
       const books = Object.keys(bibleData);
-      const index = books.indexOf(currentBook);
-      if (index > 0) {
-        const prevBook = books[index - 1];
-        bookSelect.value = prevBook;
+      const currentIndex = books.indexOf(currentBook);
+      if (currentIndex > 0) {
+        const prevBook = books[currentIndex - 1];
         displayChapter(prevBook, 0);
       }
     });
 
     nextBookBtn.addEventListener('click', () => {
       const books = Object.keys(bibleData);
-      const index = books.indexOf(currentBook);
-      if (index < books.length - 1) {
-        const nextBook = books[index + 1];
-        bookSelect.value = nextBook;
+      const currentIndex = books.indexOf(currentBook);
+      if (currentIndex < books.length - 1) {
+        const nextBook = books[currentIndex + 1];
         displayChapter(nextBook, 0);
       }
     });
 
+    toggleChaptersBtn.addEventListener('click', () => {
+      if (chapterMenu.style.display === 'flex') {
+        chapterMenu.style.display = 'none';
+      } else {
+        chapterMenu.style.display = 'flex';
+      }
+    });
+
+    // Load Bible data on page load
     loadBible();
   </script>
 </body>
