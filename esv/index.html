@@ -1,48 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ESV Bible PWA</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#000000">
-<link rel="manifest" href="manifest.json">
-<style>
-body{font-family:sans-serif;text-align:center;padding:2em;background:#000;color:#fff;}
-button{padding:1em 2em;font-size:1rem;background:#3367D6;color:white;border:none;border-radius:6px;margin-top:1em;cursor:pointer;}
-select{padding:0.6em;margin:1em 0;background:#111;color:#fff;border:1px solid #333;border-radius:4px;}
-.verse{margin:1em 0;text-align:left;}
-.word{margin-right:0.3em;display:inline-block;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESV Bible Reader</title>
+  <style>
+    :root {
+      --bg-color: #000;
+      --text-color: #f2faf2;
+      --accent-bg: #111;
+      --border-color: #333;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 100%;
+      padding: 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.6rem;
+      background-color: var(--accent-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text-color);
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--text-color);
+    }
+
+    .verse {
+      margin-bottom: 0.75rem;
+    }
+
+    .word {
+      margin-right: 0.2rem;
+      display: inline-block;
+    }
+
+    .strong {
+      display: none;
+    }
+
+    @media (min-width: 600px) {
+      .container {
+        max-width: 700px;
+        margin: auto;
+      }
+
+      select {
+        width: auto;
+        margin: 0 0.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-<div id="install-ui" style="display:none;">
-<h1>Install This App</h1>
-<button id="install-btn">Install</button>
-</div>
-<div id="app-ui" style="display:none;">
-<h1>ESV Bible Reader</h1>
-<select id="book-select"></select>
-<div id="verses">Loading...</div>
-</div>
-<script>
-let deferredPrompt;
-const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
-const isInstalled=localStorage.getItem('pwaInstalled')==='true';
-const installUI=document.getElementById('install-ui');
-const appUI=document.getElementById('app-ui');
-const installBtn=document.getElementById('install-btn');
-const showInstallUI=()=>{installUI.style.display='block';appUI.style.display='none';}
-const showAppUI=()=>{installUI.style.display='none';appUI.style.display='block';}
-const handleInstall=()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;}};
-installBtn.addEventListener('click',handleInstall);
-window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;if(!isStandalone)showInstallUI();});
-window.addEventListener('appinstalled',()=>{localStorage.setItem('pwaInstalled','true');location.reload();});
-if(isStandalone){showAppUI();loadBible();}else{showInstallUI();}
-async function loadBible(){try{const res=await fetch('https://actwu.github.io/api/ESV.json');const data=await res.json();bibleData=data.books;populateBooks();}catch(e){document.getElementById('verses').textContent='Failed to load Bible.';}}
-const bookSelect=document.getElementById('book-select');const versesDiv=document.getElementById('verses');let bibleData={};
-function populateBooks(){bookSelect.innerHTML='';const books=Object.keys(bibleData);books.forEach(book=>{const opt=document.createElement('option');opt.value=book;opt.textContent=book;bookSelect.appendChild(opt);});displayChapters();}
-function displayChapters(){const book=bookSelect.value;const chapters=bibleData[book];versesDiv.innerHTML=`<h2>${book}</h2>`;chapters.forEach((chapter,ci)=>{const chTitle=document.createElement('h3');chTitle.textContent=`Chapter ${ci+1}`;versesDiv.appendChild(chTitle);chapter.forEach((verse,vi)=>{const verseEl=document.createElement('div');verseEl.classList.add('verse');const vNum=document.createElement('strong');vNum.textContent=`${vi+1} `;verseEl.appendChild(vNum);verse.forEach(word=>{const w=document.createElement('span');w.className='word';w.textContent=word[0];verseEl.appendChild(w);});versesDiv.appendChild(verseEl);});});}
-bookSelect.addEventListener('change',displayChapters);
-</script>
+  <div class="container">
+    <header>
+      <h1>ESV Bible Reader</h1>
+      <select id="book-select"></select>
+    </header>
+    <main id="verses">Loading...</main>
+  </div>
+
+  <script>
+    const bookSelect = document.getElementById('book-select');
+    const versesDiv = document.getElementById('verses');
+    let bibleData = {};
+
+    async function loadBible() {
+      try {
+        const res = await fetch('https://actwu.github.io/api/ESV.json');
+        const data = await res.json();
+        bibleData = data.books;
+        populateBooks();
+      } catch (err) {
+        versesDiv.textContent = "Failed to load Bible JSON.";
+        console.error(err);
+      }
+    }
+
+    function populateBooks() {
+      bookSelect.innerHTML = '';
+      const books = Object.keys(bibleData);
+      books.forEach(book => {
+        const option = document.createElement('option');
+        option.value = book;
+        option.textContent = book;
+        bookSelect.appendChild(option);
+      });
+      displayAllChapters();
+    }
+
+    function displayAllChapters() {
+      const book = bookSelect.value;
+      const chapters = bibleData[book];
+
+      versesDiv.innerHTML = `<h1>${book}</h1>`;
+
+      chapters.forEach((chapter, chapterIndex) => {
+        const chapterTitle = document.createElement('h2');
+        chapterTitle.textContent = `Chapter ${chapterIndex + 1}`;
+        versesDiv.appendChild(chapterTitle);
+
+        chapter.forEach((verse, verseIndex) => {
+          const verseEl = document.createElement('div');
+          verseEl.classList.add('verse');
+          const verseNum = document.createElement('strong');
+          verseNum.textContent = `${verseIndex + 1} `;
+          verseEl.appendChild(verseNum);
+
+          verse.forEach(word => {
+            const wordEl = document.createElement('span');
+            wordEl.className = 'word';
+            wordEl.textContent = word[0] || '';
+
+            if (word[1]) {
+              const strongEl = document.createElement('span');
+              strongEl.className = 'strong';
+              strongEl.textContent = ` (${word[1]})`;
+              wordEl.appendChild(strongEl);
+            }
+
+            verseEl.appendChild(wordEl);
+          });
+
+          versesDiv.appendChild(verseEl);
+        });
+      });
+    }
+
+    bookSelect.addEventListener('change', displayAllChapters);
+    loadBible();
+  </script>
 </body>
 </html>
