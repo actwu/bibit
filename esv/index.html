@@ -195,15 +195,32 @@
     }
 
     function populateBooks() {
-      bookSelect.innerHTML = '';
-      const books = Object.keys(bibleData);
-      books.forEach(book => {
-        const option = document.createElement('option');
-        option.value = book;
-        option.textContent = book;
-        bookSelect.appendChild(option);
-      });
-      displayChapter(books[0], 0);
+  bookSelect.innerHTML = '';
+  const books = Object.keys(bibleData);
+
+  // Define where the New Testament begins
+  const newTestamentStart = 'Matthew';
+
+  let addedDivider = false;
+
+  books.forEach(book => {
+    // Insert divider before New Testament
+    if (!addedDivider && book === newTestamentStart) {
+      const divider = document.createElement('option');
+      divider.textContent = '--- New Testament ---';
+      divider.disabled = true;
+      divider.style.color = '#888'; // optional styling
+      bookSelect.appendChild(divider);
+      addedDivider = true;
+    }
+
+    const option = document.createElement('option');
+    option.value = book;
+    option.textContent = book;
+    bookSelect.appendChild(option);
+  });
+
+  displayChapter(books[0], 0);
     }
 
     function buildChapterMenu(book) {
