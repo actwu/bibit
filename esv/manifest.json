@@ -1,0 +1,13 @@
+{
+  "name": "ESV Bible Reader",
+  "short_name": "ESV Reader",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#f2faf2",
+  "icons": [{
+    "src": "192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}
