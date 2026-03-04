@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>BIBIT API</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+const A="https://www.perplexity.ai/search?model=auto&q=";
+
+const T=`You are a Bible scholar, motivator and friend motivate me and explain to me todays verse.
+Use ESV translation only.
+Provide historical background, author, date written, themes, key characters, chronological events, spiritual lessons, personal motivation, and proper scripture citations.
+Respond in clean plain no emdash.
+38% Tagalog natural.
+CONTENT:
+`;
+
+function O(x){
+window.open(A+encodeURIComponent(T+x),"_blank","width=900,height=900,noopener,noreferrer");
+}
+
+const B="Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalms|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation".split("|");
+
+function bibit(i){
+if(i>0&&i<67)O(`Book: ${B[i-1]} (ESV). Give structured biblical data and chapter overview summary.`);
+}
+
+function todaysVerse(){
+const d=new Date().toISOString().split("T")[0];
+O(`Give the ESV verse of the day for ${d}. Explain it deeply and motivate us for today.`);
+}
+
+onload=()=>{
+const p=new URLSearchParams(location.search);
+p.get("book")?bibit(+p.get("book")):todaysVerse();
+};
+</script>
+</head>
+<body></body>
+</html>
