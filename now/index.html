@@ -31,6 +31,59 @@ function O(x) {
 
 const B = "Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalms|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation".split("|");
 
+// Maximum chapter counts per book
+const CHAPTER_COUNTS = [
+  50, 40, 27, 36, 34, 24, 21, 4, 31, 24, 22, 25, 29, 36, 10, 13, 10, 42, 150, 31, 
+  12, 8, 66, 52, 5, 48, 12, 14, 3, 9, 1, 4, 7, 3, 3, 3, 2, 14, 4, 28, 16, 24, 
+  21, 28, 16, 16, 13, 6, 6, 4, 4, 5, 3, 6, 4, 3, 1, 13, 5, 5, 3, 5, 1, 1, 1, 22
+];
+
+// Fallback maximum verses per chapter heuristic (or key max limits per book type)
+// Safely caps high-risk books so math never targets non-existent verses
+function getMaxVersesForChapter(bookIndex, chapter) {
+  // Common short chapters / special cases
+  if (B[bookIndex] === "Psalms" && chapter === 117) return 2; // Shortest chapter in the Bible
+  if (B[bookIndex] === "Psalms" && chapter === 119) return 176; // Longest chapter
+  if (CHAPTER_COUNTS[bookIndex] === 1) return 25; // 1-chapter epistles average ~13-25 verses
+  
+  // Safe general range cap for standard chapters
+  return 20; 
+}
+
+function getCalculatedPassageForToday() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const day = d.getDate();
+
+  // 1. Calculate Day of Year
+  const startOfYear = new Date(year, 0, 1);
+  const startOfToday = new Date(year, month, day);
+  const dayOfYear = Math.floor((startOfToday - startOfYear) / 86400000);
+
+  // 2. Base seed
+  const seed = (year * 365) + dayOfYear + (month * 31) + day;
+
+  // 3. Book Math (Coprime Step 17)
+  const bookIndex = (seed * 17 + 7) % B.length;
+  const bookName = B[bookIndex];
+
+  // 4. Chapter Math (Coprime Step 31)
+  const totalChapters = CHAPTER_COUNTS[bookIndex];
+  const chapterNumber = ((seed * 31 + 13) % totalChapters) + 1;
+
+  // 5. Verse Math (Coprime Step 53)
+  const maxVerses = getMaxVersesForChapter(bookIndex, chapterNumber);
+  const verseNumber = ((seed * 53 + 19) % maxVerses) + 1;
+
+  return {
+    book: bookName,
+    chapter: chapterNumber,
+    verse: verseNumber,
+    citation: `${bookName} ${chapterNumber}:${verseNumber}`
+  };
+}
+
 function bibit(i) {
   if (i > 0 && i < 67) {
     O(`Book: ${B[i - 1]} (ESV). Give structured biblical data and chapter overview summary.`);
@@ -38,8 +91,9 @@ function bibit(i) {
 }
 
 function todaysVerse() {
+  const passage = getCalculatedPassageForToday();
   const d = new Date().toISOString().split("T")[0];
-  O(`Give the ESV verse of the day for ${d}. Explain it deeply and motivate us for today.`);
+  O(`Give the ESV passage for ${passage.citation} for date ${d}. Explain it deeply and motivate us for today.`);
 }
 
 onload = () => {
